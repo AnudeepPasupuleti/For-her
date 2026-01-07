@@ -14,7 +14,7 @@
             justify-content: center;
             align-items: center;
             font-family: 'Inter', sans-serif;
-            background: #1a1a1a; /* Dark start for mystery */
+            background: #1a1a1a;
             color: white;
             transition: background 3s ease;
             overflow: hidden;
@@ -28,19 +28,35 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             width: 85%;
             max-width: 350px;
+            position: relative;
         }
         #timer {
             font-size: 2.5rem;
             font-weight: 800;
             margin: 20px 0;
-            font-variant-numeric: tabular-nums;
+            color: #ff6b6b;
         }
         .hidden-content {
             display: none;
             animation: fadeIn 2s ease-in forwards;
         }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        h2 { color: #ff6b6b; margin: 0; }
+        
+        /* Passcode Button Styles */
+        .skip-btn {
+            margin-top: 20px;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: rgba(255,255,255,0.5);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: 0.3s;
+        }
+        .skip-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+        
+        h2 { color: #ff6b6b; margin-top: 0; }
         p { line-height: 1.6; font-size: 1.1rem; }
     </style>
 </head>
@@ -48,8 +64,9 @@
 
 <div class="card">
     <div id="countdown-ui">
-        <p>Something begins in...</p>
+        <p>Unlocking in...</p>
         <div id="timer">00:00:00</div>
+        <button class="skip-btn" onclick="checkPasscode()">Enter Secret Code</button>
     </div>
 
     <div id="wish-ui" class="hidden-content">
@@ -60,7 +77,10 @@
 </div>
 
 <script>
-    // TARGET DATE: Jan 9, 2026 at Midnight
+    // 1. SET YOUR PASSCODE HERE
+    const SECRET_CODE = "2026"; 
+
+    // 2. SET TARGET DATE
     const targetDate = new Date("Jan 9, 2026 00:00:00").getTime();
 
     const timerInterval = setInterval(() => {
@@ -80,27 +100,33 @@
         }
     }, 1000);
 
+    function checkPasscode() {
+        const userCode = prompt("Enter the secret 4-digit code:");
+        if (userCode === SECRET_CODE) {
+            clearInterval(timerInterval);
+            revealSurprise();
+        } else if (userCode !== null) {
+            alert("Wrong code! You'll have to wait for the timer 😉");
+        }
+    }
+
     function revealSurprise() {
         document.getElementById("countdown-ui").style.display = "none";
         document.getElementById("wish-ui").style.display = "block";
         document.body.style.background = "linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%)";
         
-        // Confetti effect
-        const duration = 5 * 1000;
-        const animationEnd = Date.now() + duration;
-        const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+        // Confetti explosion
+        const end = Date.now() + (5 * 1000);
+        const colors = ['#ffffff', '#ff6b6b'];
 
-        const interval = setInterval(function() {
-            const timeLeft = animationEnd - Date.now();
-            if (timeLeft <= 0) return clearInterval(interval);
-            const particleCount = 50 * (timeLeft / duration);
-            confetti({...defaults, particleCount, origin: { x: Math.random(), y: Math.random() - 0.2 } });
-        }, 250);
-    }
+        (function frame() {
+            confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors: colors });
+            confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors: colors });
 
-    // PWA Service Worker Registration
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('data:text/javascript,self.addEventListener("fetch", (e) => {});');
+            if (Date.now() < end) {
+                requestAnimationFrame(frame);
+            }
+        }());
     }
 </script>
 
