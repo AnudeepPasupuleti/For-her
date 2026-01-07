@@ -3,25 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>For You</title>
+    <title>For Kavya</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#ff6b6b">
     
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
     <style>
-        body { margin: 0; height: 100vh; display: flex; justify-content: center; align-items: center; font-family: sans-serif; background: #1a1a1a; color: white; transition: background 3s; overflow: hidden; }
-        .card { text-align: center; padding: 30px; border-radius: 20px; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); width: 85%; max-width: 350px; }
-        #timer { font-size: 2.5rem; font-weight: 800; margin: 20px 0; color: #ff6b6b; }
+        body { 
+            margin: 0; 
+            height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            background: #1a1a1a; 
+            color: white; 
+            transition: background 3s ease; 
+            overflow: hidden; 
+        }
+        .card { 
+            text-align: center; 
+            padding: 40px 20px; 
+            border-radius: 25px; 
+            background: rgba(255, 255, 255, 0.07); 
+            backdrop-filter: blur(20px); 
+            border: 1px solid rgba(255, 255, 255, 0.15); 
+            width: 85%; 
+            max-width: 400px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        #timer { 
+            font-size: 2.8rem; 
+            font-weight: 800; 
+            margin: 25px 0; 
+            color: #ff6b6b;
+            text-shadow: 0 0 15px rgba(255, 107, 107, 0.4);
+        }
         .hidden-content { display: none; }
-        .skip-btn { margin-top: 20px; background: transparent; border: 1px solid rgba(255,255,255,0.3); color: white; padding: 10px 20px; border-radius: 20px; cursor: pointer; }
-        h2 { color: #ff6b6b; }
+        .skip-btn { 
+            margin-top: 25px; 
+            background: transparent; 
+            border: 1px solid rgba(255,255,255,0.4); 
+            color: rgba(255,255,255,0.7); 
+            padding: 12px 25px; 
+            border-radius: 30px; 
+            cursor: pointer; 
+            font-size: 0.9rem;
+            transition: 0.3s;
+        }
+        .skip-btn:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-color: white;
+        }
+        h2 { color: #ff6b6b; font-size: 2rem; margin-bottom: 10px; }
+        p { line-height: 1.6; font-size: 1.1rem; color: #e0e0e0; }
+        .heart { color: #ff6b6b; font-size: 1.5rem; }
     </style>
 </head>
 <body>
 
 <div class="card">
     <div id="countdown-ui">
-        <p>Unlocking your Heart beat.. Kavya Because i love you.</p>
+        <p>Unlocking your Heartbeat... <br><strong>Kavya, because I love you.</strong></p>
         <div id="timer">00:00:00</div>
         <button class="skip-btn" onclick="checkPasscode()">Enter Secret Code</button>
     </div>
@@ -29,54 +74,76 @@
     <div id="wish-ui" class="hidden-content">
         <h2>Happy Birthday! ✨</h2>
         <p>I wanted to wait until Jan 28th just to make sure you were still smiling.</p>
-        <p>You make every year better. ❤️</p>
+        <p>You make every year better. <span class="heart">❤️</span></p>
     </div>
 </div>
 
 <script>
+    // --- CONFIGURATION ---
     const SECRET_CODE = "2026"; 
-    const targetDate = new Date("Jan 9, 2026 00:00:00").getTime();
+    const targetDate = new Date("Jan 28, 2026 00:00:00").getTime(); 
 
+    // --- COUNTDOWN LOGIC ---
     const x = setInterval(() => {
         const now = new Date().getTime();
         const diff = targetDate - now;
-        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const secs = Math.floor((diff % (1000 * 60)) / 1000);
-        document.getElementById("timer").innerHTML = `${hours}h ${mins}m ${secs}s`;
-        if (diff <= 0) { clearInterval(x); reveal(); }
+
+        if (diff <= 0) {
+            clearInterval(x);
+            reveal();
+        } else {
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const secs = Math.floor((diff % (1000 * 60)) / 1000);
+            document.getElementById("timer").innerHTML = `${hours}h ${mins}m ${secs}s`;
+        }
     }, 1000);
 
+    // --- PASSCODE LOGIC ---
     function checkPasscode() {
-        if (prompt("Enter secret code:") === SECRET_CODE) reveal();
-        else alert("Wrong code!");
+        const entry = prompt("Enter the secret 4-digit code:");
+        if (entry === SECRET_CODE) {
+            reveal();
+        } else if (entry !== null) {
+            alert("Wrong code! Patience is a virtue 😉");
+        }
     }
 
+    // --- REVEAL ANIMATION ---
     function reveal() {
         document.getElementById("countdown-ui").style.display = "none";
         document.getElementById("wish-ui").style.display = "block";
-        document.body.style.background = "linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%)";
-        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+        document.body.style.background = "linear-gradient(135deg, #ff6b6b 0%, #4b1248 100%)";
+        
+        // Continuous confetti for 5 seconds
+        var end = Date.now() + (5 * 1000);
+        (function frame() {
+            confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 } });
+            confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 } });
+            if (Date.now() < end) requestAnimationFrame(frame);
+        }());
     }
 
-    // Register Service Worker
+    // --- PWA AUTO-UPDATE LOGIC ---
     if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').then((registration) => {
-        // Check for updates every time the app is opened
-        registration.onupdatefound = () => {
-            const installingWorker = registration.installing;
-            installingWorker.onstatechange = () => {
-                if (installingWorker.state === 'installed') {
-                    if (navigator.serviceWorker.controller) {
-                        // New version found! Refresh the page to show it
-                        console.log('New content is available; please refresh.');
-                        window.location.reload();
-                    }
-                }
-            };
-        };
-    });
-}
+        let refreshing = false;
+
+        // Listen for the new service worker taking control
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (!refreshing) {
+                refreshing = true;
+                window.location.reload();
+            }
+        });
+
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js').then(reg => {
+                // Check for updates automatically
+                reg.update();
+            });
+        });
+    }
 </script>
+
 </body>
 </html>
