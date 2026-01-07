@@ -26,6 +26,7 @@
     /* Section Logic */
     .page { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: var(--bg); padding: 20px; box-sizing: border-box; overflow-y: auto; z-index: 100; }
     .page.active { display: block; animation: slideIn 0.4s ease-out; }
+
     @keyframes slideIn { from { transform: translateY(100%); } to { transform: translateY(0); } }
     
     .back-btn { background: none; border: 1px solid var(--primary); color: var(--primary); padding: 8px 15px; border-radius: 20px; margin-bottom: 20px; }
@@ -95,14 +96,41 @@
 
         // Countdown Logic (Jan 28th)
         const targetDate = new Date("Jan 28, 2026 00:00:00").getTime();
-        setInterval(() => {
-            const now = new Date().getTime();
+        const timerEl = document.getElementById("timer");
+
+        function pad(n) { return String(n).padStart(2, '0'); }
+
+        let intervalId;
+        function updateTimer() {
+            const now = Date.now();
             const diff = targetDate - now;
-            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const secs = Math.floor((diff % (1000 * 60)) / 1000);
-            document.getElementById("timer").innerHTML = `${hours}h ${mins}m ${secs}s`;
-        }, 1000);
+
+            if (diff <= 0) {
+                // target reached
+                timerEl.innerHTML = "00:00:00";
+                if (intervalId) clearInterval(intervalId);
+                return;
+            }
+
+            const msPerDay = 1000 * 60 * 60 * 24;
+            const msPerHour = 1000 * 60 * 60;
+            const msPerMin = 1000 * 60;
+
+            const days = Math.floor(diff / msPerDay);
+            const hours = Math.floor((diff % msPerDay) / msPerHour);
+            const mins = Math.floor((diff % msPerHour) / msPerMin);
+            const secs = Math.floor((diff % msPerMin) / 1000);
+
+            if (days > 0) {
+                timerEl.innerHTML = `${days}d ${pad(hours)}h ${pad(mins)}m ${pad(secs)}s`;
+            } else {
+                timerEl.innerHTML = `${pad(hours)}h ${pad(mins)}m ${pad(secs)}s`;
+            }
+        }
+
+        // run once immediately so the UI updates right away
+        updateTimer();
+        intervalId = setInterval(updateTimer, 1000);
 
         function newLine() {
             const lines = [
