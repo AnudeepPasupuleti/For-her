@@ -3,61 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A Special Surprise</title>
+    <title>For You</title>
     <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ff6b6b">
+    
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        body {
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Inter', sans-serif;
-            background: #1a1a1a;
-            color: white;
-            transition: background 3s ease;
-            overflow: hidden;
-        }
-        .card {
-            text-align: center;
-            padding: 30px;
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            width: 85%;
-            max-width: 350px;
-            position: relative;
-        }
-        #timer {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin: 20px 0;
-            color: #ff6b6b;
-        }
-        .hidden-content {
-            display: none;
-            animation: fadeIn 2s ease-in forwards;
-        }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* Passcode Button Styles */
-        .skip-btn {
-            margin-top: 20px;
-            background: transparent;
-            border: 1px solid rgba(255,255,255,0.3);
-            color: rgba(255,255,255,0.5);
-            padding: 8px 15px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            transition: 0.3s;
-        }
-        .skip-btn:hover { background: rgba(255,255,255,0.1); color: white; }
-        
-        h2 { color: #ff6b6b; margin-top: 0; }
-        p { line-height: 1.6; font-size: 1.1rem; }
+        body { margin: 0; height: 100vh; display: flex; justify-content: center; align-items: center; font-family: sans-serif; background: #1a1a1a; color: white; transition: background 3s; overflow: hidden; }
+        .card { text-align: center; padding: 30px; border-radius: 20px; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); width: 85%; max-width: 350px; }
+        #timer { font-size: 2.5rem; font-weight: 800; margin: 20px 0; color: #ff6b6b; }
+        .hidden-content { display: none; }
+        .skip-btn { margin-top: 20px; background: transparent; border: 1px solid rgba(255,255,255,0.3); color: white; padding: 10px 20px; border-radius: 20px; cursor: pointer; }
+        h2 { color: #ff6b6b; }
     </style>
 </head>
 <body>
@@ -71,64 +28,41 @@
 
     <div id="wish-ui" class="hidden-content">
         <h2>Happy New Year! ✨</h2>
-        <p>I know I'm a few days late to the party, but I wanted to wait until Jan 9th just to make sure you were still smiling.</p>
-        <p>Here's to a year as amazing as you are. ❤️</p>
+        <p>I wanted to wait until Jan 9th just to make sure you were still smiling.</p>
+        <p>You make every year better. ❤️</p>
     </div>
 </div>
 
 <script>
-    // 1. SET YOUR PASSCODE HERE
     const SECRET_CODE = "2026"; 
-
-    // 2. SET TARGET DATE
     const targetDate = new Date("Jan 9, 2026 00:00:00").getTime();
 
-    const timerInterval = setInterval(() => {
+    const x = setInterval(() => {
         const now = new Date().getTime();
         const diff = targetDate - now;
-
         const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
         const secs = Math.floor((diff % (1000 * 60)) / 1000);
-
-        document.getElementById("timer").innerHTML = 
-            `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-
-        if (diff <= 0) {
-            clearInterval(timerInterval);
-            revealSurprise();
-        }
+        document.getElementById("timer").innerHTML = `${hours}h ${mins}m ${secs}s`;
+        if (diff <= 0) { clearInterval(x); reveal(); }
     }, 1000);
 
     function checkPasscode() {
-        const userCode = prompt("Enter the secret 4-digit code:");
-        if (userCode === SECRET_CODE) {
-            clearInterval(timerInterval);
-            revealSurprise();
-        } else if (userCode !== null) {
-            alert("Wrong code! You'll have to wait for the timer 😉");
-        }
+        if (prompt("Enter secret code:") === SECRET_CODE) reveal();
+        else alert("Wrong code!");
     }
 
-    function revealSurprise() {
+    function reveal() {
         document.getElementById("countdown-ui").style.display = "none";
         document.getElementById("wish-ui").style.display = "block";
         document.body.style.background = "linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%)";
-        
-        // Confetti explosion
-        const end = Date.now() + (5 * 1000);
-        const colors = ['#ffffff', '#ff6b6b'];
+        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+    }
 
-        (function frame() {
-            confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors: colors });
-            confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors: colors });
-
-            if (Date.now() < end) {
-                requestAnimationFrame(frame);
-            }
-        }());
+    // Register Service Worker
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('data:text/javascript,self.addEventListener("fetch", (e) => {});');
     }
 </script>
-
 </body>
 </html>
