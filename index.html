@@ -1,1 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Special Surprise</title>
+    <link rel="manifest" href="data:application/manifest+json,{'name':'For You','short_name':'ForYou','start_url':'.','display':'standalone','background_color':'#ffffff','theme_color':'#ff6b6b','icons':[{'src':'https://cdn-icons-png.flaticon.com/512/2589/2589175.png','sizes':'512x512','type':'image/png'}]}">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Inter', sans-serif;
+            background: #1a1a1a; /* Dark start for mystery */
+            color: white;
+            transition: background 3s ease;
+            overflow: hidden;
+        }
+        .card {
+            text-align: center;
+            padding: 30px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 85%;
+            max-width: 350px;
+        }
+        #timer {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin: 20px 0;
+            font-variant-numeric: tabular-nums;
+        }
+        .hidden-content {
+            display: none;
+            animation: fadeIn 2s ease-in forwards;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        h2 { color: #ff6b6b; margin: 0; }
+        p { line-height: 1.6; font-size: 1.1rem; }
+    </style>
+</head>
+<body>
 
+<div class="card">
+    <div id="countdown-ui">
+        <p>Something begins in...</p>
+        <div id="timer">00:00:00</div>
+    </div>
+
+    <div id="wish-ui" class="hidden-content">
+        <h2>Happy New Year! ✨</h2>
+        <p>I know I'm a few days late to the party, but I wanted to wait until Jan 9th just to make sure you were still smiling.</p>
+        <p>Here's to a year as amazing as you are. ❤️</p>
+    </div>
+</div>
+
+<script>
+    // TARGET DATE: Jan 9, 2026 at Midnight
+    const targetDate = new Date("Jan 9, 2026 00:00:00").getTime();
+
+    const timerInterval = setInterval(() => {
+        const now = new Date().getTime();
+        const diff = targetDate - now;
+
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+        document.getElementById("timer").innerHTML = 
+            `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+
+        if (diff <= 0) {
+            clearInterval(timerInterval);
+            revealSurprise();
+        }
+    }, 1000);
+
+    function revealSurprise() {
+        document.getElementById("countdown-ui").style.display = "none";
+        document.getElementById("wish-ui").style.display = "block";
+        document.body.style.background = "linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%)";
+        
+        // Confetti effect
+        const duration = 5 * 1000;
+        const animationEnd = Date.now() + duration;
+        const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+        const interval = setInterval(function() {
+            const timeLeft = animationEnd - Date.now();
+            if (timeLeft <= 0) return clearInterval(interval);
+            const particleCount = 50 * (timeLeft / duration);
+            confetti({...defaults, particleCount, origin: { x: Math.random(), y: Math.random() - 0.2 } });
+        }, 250);
+    }
+
+    // PWA Service Worker Registration
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('data:text/javascript,self.addEventListener("fetch", (e) => {});');
+    }
+</script>
+
+</body>
+</html>
